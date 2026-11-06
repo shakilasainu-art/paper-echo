@@ -1,0 +1,52 @@
+/* ============================================================
+   tokens.css —— 唯一颜色 / 字体 / 形状 / 动效来源
+   依据：《视觉风格指南 v1.0》§02 §04 §05 §07
+   全站禁止出现令牌之外的颜色与缓动
+   ============================================================ */
+:root {
+  /* 色彩 */
+  --bg: #FBF6EA;      /* 奶油纸底 */
+  --bg2: #FFFDF4;     /* 亮纸面 */
+  --cream: #FFF8E7;   /* 奶油白 · 卡片/高光 */
+  --ink: #33402A;     /* 深墨绿 · 正文（代黑） */
+  --muted: #8A8B76;   /* 灰橄榄 · 次级文字 */
+  --rule: #E6DFC8;    /* 纸边线 */
+  --green: #7DB94E;   /* 草地绿 */
+  --yellow: #F5C842;  /* 柠檬黄 */
+  --orange: #F07A2F;  /* 暖橙 · 强调/交互引导 */
+  --pink: #F7B7A3;    /* 蜜桃粉 */
+  --sky: #8FCCE8;     /* 湖蓝 */
+  --deep: #4E6B3C;    /* 深叶绿 */
+  --locked: #C9C2AC;  /* 灰纸 · 未解锁/禁用 */
+  --locked-line: #A49D84;
+  --locked-fill: #EFEAD8;
+
+  /* 字体（M1 使用系统兜底；woff2 子集在 M5 接入） */
+  --f-cn: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --f-title: "ZCOOL KuaiLe", var(--f-cn);
+  --f-body: "LXGW WenKai", "KaiTi", var(--f-cn);
+  --f-num: "Outfit", var(--f-cn);
+
+  /* 形状（风格指南 §05） */
+  --r-card: 20px;
+  --r-btn: 14px 5px 14px 5px;      /* 手绘不对称圆角 */
+  --r-panel: 24px;
+
+  /* 阴影：贴纸厚度（纯色硬阴影，禁柔和投影） */
+  --shadow-pop: 3px 3px 0 var(--rule);
+  --shadow-lift: 5px 6px 0 var(--rule);
+
+  /* 动效三动词 */
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-enter: 500ms;
+  --t-light: 600ms;
+  --dur-float: 5s;
+  --dur-breathe: 3s;
+
+  /* 层级 */
+  --z-room-bg: 0;
+  --z-sparkles: 1;
+  --z-fragments: 2;
+  --z-crown: 3;
+  --z-nav: 50;
+}

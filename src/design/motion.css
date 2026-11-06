@@ -1,0 +1,63 @@
+/* ============================================================
+   motion.css —— 风格指南 §07 三动词 + 路由转场
+   只动 transform / opacity；循环动画每屏 ≤ 3 个
+   ============================================================ */
+
+@keyframes floaty {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(-2deg); }
+  50%      { transform: translate(-50%, -50%) translateY(-10px) rotate(2deg); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.06); }
+}
+@keyframes pop {
+  0%   { transform: translate(-50%, -50%) scale(0.9); }
+  30%  { transform: translate(-50%, -50%) scale(1.14) rotate(-3deg); }
+  55%  { transform: translate(-50%, -50%) scale(0.97); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  25%      { transform: translate(-50%, -50%) rotate(-5deg); }
+  75%      { transform: translate(-50%, -50%) rotate(5deg); }
+}
+
+/* 房间内碎片定位动画（元素以 left/top % + translate(-50%,-50%) 定位） */
+.m-float   { animation: floaty var(--dur-float) ease-in-out infinite; }
+.m-breathe { animation: breathe var(--dur-breathe) ease-in-out infinite; }
+.m-pop     { animation: pop var(--t-light) var(--ease-pop) both; }
+.m-shake   { animation: shake 0.3s ease-in-out both; }
+
+/* 非 % 居中场景（弹窗、按钮）用无位移版本 */
+@keyframes pop-center {
+  0%   { transform: scale(0.9); }
+  30%  { transform: scale(1.14) rotate(-3deg); }
+  55%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+.m-pop-center { animation: pop-center var(--t-light) var(--ease-pop) both; }
+
+/* 入场：淡入上移 */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.m-rise { animation: rise var(--t-enter) var(--ease-pop) both; }
+
+/* 路由转场：纸页翻动 */
+.page-enter-active { transition: transform 0.5s var(--ease-pop), opacity 0.5s; }
+.page-enter-from {
+  transform: perspective(1200px) rotateY(-8deg) translateX(24px);
+  opacity: 0;
+}
+.page-leave-active { transition: opacity 0.3s; }
+.page-leave-to     { opacity: 0; }
+
+/* 无障碍：系统级关闭动效 */
+@media (prefers-reduced-motion: reduce) {
+  .m-float, .m-breathe { animation: none; }
+  .m-pop, .m-pop-center, .m-rise, .m-shake { animation-duration: 1ms; }
+  .page-enter-active, .page-leave-active { transition: opacity 0.15s; }
+  .page-enter-from { transform: none; }
+}
