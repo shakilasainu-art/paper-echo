@@ -19,11 +19,11 @@ useReveal(body)
       <!-- 满幅插画 -->
       <figure class="hero reveal">
         <img
-          src="../../assets/img/pe_story_origin_2x.webp"
-          alt="阳光照进的阁楼：墙上钉着皇冠草稿，地板上散落着发光的拼图碎片"
+          src="../../assets/img/pe_story_island_2x.webp"
+          alt="星云中的悬浮小岛，被一圈发光的紫粉色星环包裹，云朵与星星散落四周，岛上开满小花"
           loading="eager"
         />
-        <figcaption>阁楼 · 故事被风吹散的那个下午</figcaption>
+        <figcaption>星环岛 · 星光亮起的时刻</figcaption>
       </figure>
 
       <!-- 题记 -->

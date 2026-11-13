@@ -1,22 +1,21 @@
 ﻿/** 板块 01/02 的内容数据 */
 
 export const STORY_EPIGRAPH = [
-  '纸会记住碰过它的人。',
-  '所以当故事被合上，它们并没有消失，',
-  '只是碎成了光，等着被重新捡起。',
+  '星光亮起的地方，就会有一场新的聚会。',
+  '这里不催你说话，也不怕你安静，',
+  '只要愿意来，总有人在同一片星光下等你。',
 ]
 
 export const STORY_PARAGRAPHS = [
-  '很久以前，纸境是一本很厚的绘本。每一页都住着一个会呼吸的小故事：有的在窗边打盹，有的在草地上追着自己的影子跑。它们安安静静，从不吵闹——因为只要页码不乱，故事就不会散。',
-  '可是那年冬天，风翻得太快了。一夜之间，厚厚的一本被吹散成七块小小的光。有的落在阁楼的地板上，有的藏进了衣橱，有的跟着纸船漂去了溪流尽头。故事还在，只是谁也读不懂完整的意思了。',
-  '住在阁楼里的元元捡到了第一块。她把它举到灯下，光里浮出一句没说完的话。她忽然明白：碎片不会自己拼回去，得有人一块一块地把它们找回来，再放回原来的位置。',
-  '于是她开始了一趟缓慢的旅行。她走进别人的故事里，看他们怎么吃饭、怎么生气、怎么在雨天唱歌。每读懂一段，就有一块碎片亮起来；每亮起一块，房间里的灯就多一盏。',
-  '有人问，收集这些有什么用呢？元元想了想，说：因为一个故事如果只有一半，住在里面的人就会一直停在原地。我想让他们继续走下去。',
-  '现在，房间还差最后几盏灯。皇冠的位置空着，像在等谁。如果你愿意，可以翻开下一页——纸境回响，从你碰到它的那一刻，就开始了。',
+  '这片悬浮在星云里的岛屿，被一圈发光的紫粉色星环包裹。云朵慢悠悠地漂浮，星星散落遍地，岛上长满软乎乎的小花，风一吹，就整片整片地晃。',
+  '星环上每一个光点亮起，就代表一场新的聚会诞生。有人循着光来，有人只是路过，抬头看见那一点亮，就决定今晚不再一个人待着。',
+  '元元是这座岛屿的专属派对向导。它负责接住每一个孤单、想找搭子的人：可以在线上房间开狼人杀、K 歌连麦；也可以相约奔赴线下，举杯相聚。',
+  '在这里没有生硬的社交压力，热闹和安静都被接纳。想闹就闹到深夜，想坐着看星星也不会有人催你融入。',
+  '只要星光亮起，随时都能遇见同频的伙伴。',
 ]
 
-export const STORY_PULL_QUOTE = '故事不会消失，它只是碎成了光。'
-export const STORY_PULL_NOTE = '—— 纸境手记 · 第七页'
+export const STORY_PULL_QUOTE = '只要星光亮起，随时都能遇见同频的伙伴。'
+export const STORY_PULL_NOTE = '—— 元元的向导手记'
 
 /** ================= M4：结局 ================= */
 
@@ -275,32 +274,46 @@ export interface Scene {
 
 export const SCENES_DATA: Scene[] = [
   {
-    id: 'attic',
-    title: '阁楼 · 故事开始的地方',
-    caption: '阳光每天中午都会准时落在第七块地板上。元元说，那是故事在提醒她：别忘记翻页。',
-    alt: '暖色调的阁楼：斜屋顶、圆窗、纸灯笼和地板上的光斑',
-    img: new URL('../assets/img/pe_scene_attic_2x_crop.webp', import.meta.url).href,
+    id: 'creek',
+    title: '溪畔踏秋 · 金色的出发',
+    caption: '元元踩着清凉的溪水，穿过层层落叶。小皇冠被夕阳照亮，新的旅程就从这一片金色里开始。',
+    alt: '秋日森林中，戴着小皇冠的元元站在金色溪水与落叶之间',
+    img: new URL('../assets/img/pe_scene_01_creek.webp', import.meta.url).href,
   },
   {
-    id: 'forest',
-    title: '纸森林 · 会呼吸的树',
-    caption: '这里的树都长在纸上。你如果停下来听，能听见叶片翻动的沙沙声，像有人在很轻地读书。',
-    alt: '纸做的森林，树冠层层叠叠，小径上落满黄色小花',
-    img: new URL('../assets/img/pe_scene_forest_2x_crop.webp', import.meta.url).href,
+    id: 'campfire',
+    title: '林间夜营 · 篝火与萤火',
+    caption: '帐篷亮起暖光，溪水把篝火轻轻带向远方。萤火虫在树间巡逻，守着今晚不想睡的故事。',
+    alt: '夜晚的森林里，帐篷、篝火、萤火虫与溪流相互映衬',
+    img: new URL('../assets/img/pe_scene_02_campfire.webp', import.meta.url).href,
   },
   {
-    id: 'stream',
-    title: '溪流尽头 · 纸船去的地方',
-    caption: '纸船不会沉。它们只是慢慢走，把没说完的话带到下游，再变成新的开头。',
-    alt: '芦苇环绕的浅溪，几只纸船顺水漂向远山',
-    img: new URL('../assets/img/pe_scene_stream_2x_crop.webp', import.meta.url).href,
+    id: 'camping',
+    title: '秋日露营 · 把秋天铺好',
+    caption: '铺一张野餐垫，摆好南瓜和点心。风从帐篷边经过，元元决定把这一刻留得再久一点。',
+    alt: '元元在秋日营地铺野餐垫，身旁有帐篷、南瓜和篝火',
+    img: new URL('../assets/img/pe_scene_03_camping.webp', import.meta.url).href,
   },
   {
-    id: 'roof',
-    title: '屋顶星空 · 熄灯之后',
-    caption: '灯关了，星星才肯出来。墨墨守在这里，替所有睡着的页守着夜。',
-    alt: '深绿夜空下的屋顶，星星与灯串亮着，窗里透出暖光',
-    img: new URL('../assets/img/pe_scene_roof_2x_crop.webp', import.meta.url).href,
+    id: 'berries',
+    title: '红果采集 · 森林的甜味',
+    caption: '阳光穿过枝叶，红果在篮子里越堆越高。元元把最大的一颗留给你，也收下森林甜甜的回礼。',
+    alt: '阳光森林中，元元手提篮子采摘红果',
+    img: new URL('../assets/img/pe_scene_04_berries.webp', import.meta.url).href,
+  },
+  {
+    id: 'expedition',
+    title: '溪畔探险 · 跟着水声走',
+    caption: '背好小包，沿着溪岸向前走。每一次转弯都藏着新的风景，小皇冠也在替勇敢闪闪发亮。',
+    alt: '戴着皇冠、背包的元元沿秋日溪畔向前探险',
+    img: new URL('../assets/img/pe_scene_05_expedition.webp', import.meta.url).href,
+  },
+  {
+    id: 'picnic',
+    title: '晴日野餐 · 花边的午休',
+    caption: '蘑菇、花草和野餐篮都到齐了。玩累了就坐在溪边，让阳光和微风一起完成今天的结尾。',
+    alt: '阳光森林的溪边，元元与野餐篮、蘑菇和花草一起午休',
+    img: new URL('../assets/img/pe_scene_06_picnic.webp', import.meta.url).href,
   },
 ]
 

@@ -1,516 +1,617 @@
 <script setup lang="ts">
 /**
- * 05 动作剧场（技术方案 §05 / M3）
- * 主舞台播放器：纸偶动画为片源，自制播放/暂停 + 倍速 + 进度
- * 下方胶片网格切换片段；离开路由时清掉计时器
+ * 05 动作剧场
+ * 元元的六格基础动作库：点击动作卡，舞台立即切换立绘并表演一次；
+ * 再次点击当前动作可重新播放。所有动作仅使用 transform / opacity。
  */
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import ChapterShell from '../../components/ChapterShell.vue'
-import { CHARACTERS_DATA, CLIPS_DATA } from '../../config/content'
 
-const SPEEDS = [0.5, 1, 1.5]
-
-const activeId = ref(CLIPS_DATA[0].id)
-const active = computed(() => CLIPS_DATA.find((c) => c.id === activeId.value)!)
-const activeIndex = computed(() => CLIPS_DATA.findIndex((c) => c.id === activeId.value))
-
-const playing = ref(true)
-const speed = ref(1)
-const elapsed = ref(0)
-
-const poster = computed(
-  () => CHARACTERS_DATA.find((c) => c.id === active.value.characterId)?.avatar ?? '',
-)
-const progress = computed(() => Math.min(100, (elapsed.value / active.value.duration) * 100))
-const puppetDuration = computed(() => `${active.value.duration / speed.value}s`)
-
-let timer = 0
-
-function tick() {
-  if (!playing.value) return
-  elapsed.value += 0.1 * speed.value
-  if (elapsed.value >= active.value.duration) elapsed.value = 0
+interface ActionItem {
+  id: string
+  name: string
+  en: string
+  line: string
+  img: string
 }
 
-function fmt(t: number) {
-  const s = Math.floor(t)
-  return `0:${String(s).padStart(2, '0')}`
-}
+const ACTIONS: ActionItem[] = [
+  {
+    id: 'walk',
+    name: '快乐走路',
+    en: 'WALK',
+    line: '迈开小脚，把好心情带向下一站。',
+    img: new URL('../../assets/img/pe_action_walk.webp', import.meta.url).href,
+  },
+  {
+    id: 'heart',
+    name: '双手比心',
+    en: 'HEART',
+    line: '双手比心，把今天的喜欢认真送给你。',
+    img: new URL('../../assets/img/pe_action_heart.webp', import.meta.url).href,
+  },
+  {
+    id: 'wave',
+    name: '热情挥手',
+    en: 'WAVE',
+    line: '举起小爪子，和新朋友打个招呼。',
+    img: new URL('../../assets/img/pe_action_wave.webp', import.meta.url).href,
+  },
+  {
+    id: 'donut',
+    name: '吃甜甜圈',
+    en: 'DONUT',
+    line: '坐稳扶好，香甜的一口马上送到。',
+    img: new URL('../../assets/img/pe_action_donut.webp', import.meta.url).href,
+  },
+  {
+    id: 'sit',
+    name: '抱膝坐坐',
+    en: 'REST',
+    line: '收起小脚，陪你安静地待一会儿。',
+    img: new URL('../../assets/img/pe_action_sit.webp', import.meta.url).href,
+  },
+  {
+    id: 'eat',
+    name: '开心吃饭',
+    en: 'EAT',
+    line: '捧起小碗，把派对能量补得满满的。',
+    img: new URL('../../assets/img/pe_action_eat.webp', import.meta.url).href,
+  },
+]
 
-function selectClip(id: string) {
-  if (id === activeId.value) {
-    playing.value = true
-    return
-  }
-  activeId.value = id
-  elapsed.value = 0
-  playing.value = true
-}
+const active = ref(0)
+const runId = ref(0)
+const current = computed(() => ACTIONS[active.value])
 
-function cycleSpeed() {
-  const i = SPEEDS.indexOf(speed.value)
-  speed.value = SPEEDS[(i + 1) % SPEEDS.length]
+function perform(index: number) {
+  active.value = index
+  // 即使重复选择同一个动作，也通过更换 key 重播动画
+  runId.value += 1
 }
-
-onMounted(() => {
-  timer = window.setInterval(tick, 100)
-})
-onBeforeUnmount(() => window.clearInterval(timer))
 </script>
 
 <template>
-  <ChapterShell id="05" :threshold="0.55">
+  <ChapterShell id="05" :threshold="0.35">
     <div class="theater">
-      <header class="lede m-rise">
-        <p class="kicker">THE LITTLE THEATER · 纸偶剧场</p>
+      <header class="lede">
+        <p class="kicker">YUANYUAN'S LITTLE STAGE · 元元动作库</p>
         <p class="txt">
-          幕布后面住着四个很短的片段。它们不会真的结束——演到最后，会自己回到开头，再演一遍。挑一段胶片，看看它们在纸上怎么动。
+          六个基础动作已经排好队。点一张动作卡，元元就会走到舞台中央，当场做给你看。
         </p>
       </header>
 
-      <!-- 主舞台 -->
-      <section class="stage-frame" :aria-label="`正在播放：${active.name}`">
+      <section class="stage" :aria-label="`元元的动作舞台：${current.name}`">
         <div class="valance" aria-hidden="true"></div>
+        <span class="curtain left" aria-hidden="true"></span>
+        <span class="curtain right" aria-hidden="true"></span>
+        <div class="spotlight" aria-hidden="true"></div>
+        <span class="spark s1" aria-hidden="true">✦</span>
+        <span class="spark s2" aria-hidden="true">✧</span>
+        <span class="spark s3" aria-hidden="true">✦</span>
 
-        <div class="screen">
-          <div class="spot" aria-hidden="true"></div>
+        <span class="counter">ACTION {{ String(active + 1).padStart(2, '0') }} / 06</span>
 
-          <div class="puppet-area" :class="`act-${active.kind}`">
-            <div class="rig" aria-hidden="true">
-              <span class="bar"></span>
-              <span class="wire"></span>
-            </div>
-            <div
-              class="puppet"
-              :class="{ paused: !playing }"
-              :style="{ animationDuration: puppetDuration }"
-            >
-              <img :src="poster" :alt="`${active.owner}的纸偶`" loading="lazy" />
-            </div>
-            <span class="shadow" aria-hidden="true"></span>
-          </div>
-
-          <div class="caption">
-            <p class="owner">{{ active.owner }} · 片段 {{ activeIndex + 1 }}</p>
-            <h2>{{ active.name }}</h2>
-            <p class="line">{{ active.line }}</p>
+        <div class="actor">
+          <span class="ground" aria-hidden="true"></span>
+          <div :key="`${current.id}-${runId}`" class="performer" :class="`move-${current.id}`">
+            <img :src="current.img" :alt="`元元${current.name}`" />
+            <template v-if="current.id === 'heart'">
+              <span class="love l1" aria-hidden="true">♥</span>
+              <span class="love l2" aria-hidden="true">♥</span>
+              <span class="love l3" aria-hidden="true">♥</span>
+            </template>
           </div>
         </div>
 
-        <div class="controls">
-          <button
-            type="button"
-            class="play"
-            :aria-label="playing ? '暂停' : '播放'"
-            @click="playing = !playing"
-          >
-            {{ playing ? '❚❚' : '▶' }}
-          </button>
-          <div
-            class="timeline"
-            role="progressbar"
-            aria-label="播放进度"
-            :aria-valuenow="Math.round(progress)"
-            aria-valuemin="0"
-            aria-valuemax="100"
-          >
-            <span class="fill" :style="{ width: progress + '%' }"></span>
-          </div>
-          <span class="time">{{ fmt(elapsed) }} / {{ fmt(active.duration) }}</span>
-          <button type="button" class="speed" aria-label="切换播放倍速" @click="cycleSpeed">
-            {{ speed }}×
-          </button>
+        <div :key="current.id" class="caption">
+          <p class="eyebrow">YUANYUAN · BASIC MOVE</p>
+          <h2>{{ current.name }}</h2>
+          <p class="line">{{ current.line }}</p>
         </div>
       </section>
 
-      <!-- 胶片网格 -->
-      <div class="clips" role="tablist" aria-label="选择动作片段">
+      <div class="actions" role="group" aria-label="元元的六个基础动作">
         <button
-          v-for="c in CLIPS_DATA"
-          :key="c.id"
+          v-for="(action, i) in ACTIONS"
+          :key="action.id"
           type="button"
-          class="clip"
-          role="tab"
-          :aria-selected="c.id === activeId"
-          :class="{ on: c.id === activeId }"
-          @click="selectClip(c.id)"
+          class="action"
+          :class="{ on: i === active }"
+          :aria-label="`让元元表演${action.name}`"
+          :aria-pressed="i === active"
+          @click="perform(i)"
         >
-          <span class="poster">
-            <img
-              :src="CHARACTERS_DATA.find((p) => p.id === c.characterId)?.avatar ?? ''"
-              :alt="`${c.owner}的片段封面`"
-              loading="lazy"
-            />
-            <span class="dur">{{ c.duration }}s</span>
+          <span class="thumb">
+            <span class="no">{{ String(i + 1).padStart(2, '0') }}</span>
+            <img :src="action.img" :alt="action.name" loading="lazy" />
+            <span class="play-mark" aria-hidden="true">▶</span>
           </span>
-          <span class="cn">{{ c.name }}</span>
-          <span class="owner">{{ c.owner }}</span>
+          <span class="name">{{ action.name }}</span>
+          <span class="en">{{ action.en }}</span>
         </button>
       </div>
 
-      <p class="tip">点击胶片切换片段 · ❚❚ / ▶ 暂停或继续 · 右上角切换倍速</p>
+      <p class="tip">点击动作卡，元元当场表演 · 再点当前动作可重演</p>
+      <p class="sr-only" aria-live="polite">元元表演：{{ current.name }}</p>
     </div>
   </ChapterShell>
 </template>
 
 <style scoped>
 .lede {
-  padding: 0 0 1.3rem;
+  padding-bottom: 1.25rem;
 }
 .kicker {
   margin: 0 0 0.3rem;
-  font-size: 0.74rem;
-  letter-spacing: 0.22em;
   color: var(--orange);
+  font-size: 0.74rem;
   font-weight: 700;
+  letter-spacing: 0.18em;
 }
 .txt {
+  max-width: 38em;
   margin: 0;
+  color: var(--ink);
   font-size: 0.94rem;
   line-height: 1.95;
-  color: var(--ink);
-  max-width: 36em;
 }
 
-/* 剧院外框 */
-.stage-frame {
-  border: 3px solid var(--ink);
-  border-radius: 18px 6px 18px 6px;
-  background: var(--bg2);
-  box-shadow: var(--shadow-lift);
+/* ---------- 小舞台 ---------- */
+.stage {
+  position: relative;
+  height: clamp(370px, 52vh, 470px);
   overflow: hidden;
+  border: 3px solid var(--ink);
+  border-radius: 24px 8px 24px 8px;
+  background:
+    radial-gradient(ellipse at 50% 28%, color-mix(in srgb, var(--yellow) 42%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, var(--cream) 0%, var(--bg2) 100%);
+  box-shadow: 7px 8px 0 color-mix(in srgb, var(--ink) 15%, transparent);
 }
 .valance {
-  height: 16px;
-  background:
-    repeating-linear-gradient(90deg, var(--yellow) 0 14px, var(--orange) 14px 28px);
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 6;
+  height: 22px;
   border-bottom: 3px solid var(--ink);
-  opacity: 0.9;
+  background: repeating-linear-gradient(90deg, var(--yellow) 0 30px, var(--orange) 30px 60px);
 }
-
-.screen {
-  position: relative;
-  height: clamp(340px, 52vh, 460px);
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 26%, color-mix(in srgb, var(--yellow) 34%, transparent), transparent 62%),
-    repeating-linear-gradient(90deg, var(--deep) 0 12px, color-mix(in srgb, var(--deep) 82%, var(--ink)) 12px 24px);
+.valance::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 19px;
+  height: 13px;
+  background: radial-gradient(circle at 15px 0, var(--yellow) 14px, transparent 15px) 0 0 / 60px 13px repeat-x;
 }
-/* 追光 */
-.spot {
+.curtain {
+  position: absolute;
+  top: 22px;
+  bottom: 0;
+  z-index: 1;
+  width: 15%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--deep) 0 18px,
+    color-mix(in srgb, var(--deep) 78%, var(--ink)) 18px 36px
+  );
+  opacity: 0.92;
+}
+.curtain.left {
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, 65% 58%, 92% 100%, 0 100%);
+}
+.curtain.right {
+  right: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 8% 100%, 35% 58%);
+}
+.spotlight {
   position: absolute;
   left: 50%;
-  top: -6%;
-  width: 62%;
-  aspect-ratio: 1 / 1.25;
+  top: 12px;
+  width: 68%;
+  height: 88%;
   transform: translateX(-50%);
-  background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--yellow) 26%, transparent), transparent 64%);
-  animation: spot-breathe var(--dur-breathe) ease-in-out infinite;
+  background: radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--cream) 88%, transparent), transparent 66%);
   pointer-events: none;
 }
-@keyframes spot-breathe {
-  0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
-  50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
-}
-
-/* 纸偶 */
-.puppet-area {
+.counter {
   position: absolute;
-  left: 50%;
-  top: 12%;
-  width: clamp(170px, 30%, 240px);
-  aspect-ratio: 3 / 4;
-  transform: translateX(-50%);
-}
-.puppet {
-  width: 100%;
-  height: 100%;
-  padding: 0.5rem;
-  background: var(--cream);
-  border: 3px solid var(--bg2);
-  outline: 2px solid var(--rule);
-  border-radius: 14px 4px 14px 4px;
-  box-shadow: 0 10px 0 color-mix(in srgb, var(--ink) 22%, transparent);
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  transform-origin: 50% 92%;
-}
-.puppet.paused {
-  animation-play-state: paused;
-}
-.puppet img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px 2px 10px 2px;
-}
-
-/* 悬丝 */
-.rig {
-  position: absolute;
-  left: 50%;
-  top: -46px;
-  width: 76%;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-.bar {
-  display: block;
-  height: 4px;
-  background: var(--ink);
+  right: 1.1rem;
+  top: 3rem;
+  z-index: 5;
+  padding: 0.25rem 0.65rem;
+  border: 2px solid var(--ink);
   border-radius: 999px;
-  opacity: 0.8;
+  background: var(--cream);
+  color: var(--deep);
+  font-family: var(--f-num);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
-.wire {
-  display: block;
-  width: 1.5px;
-  height: 44px;
-  margin: 0 auto;
-  background: var(--ink);
-  opacity: 0.5;
+.spark {
+  position: absolute;
+  z-index: 2;
+  color: var(--orange);
+  font-size: 1.2rem;
+  opacity: 0.65;
 }
-.shadow {
+.s1 {
+  left: 24%;
+  top: 23%;
+}
+.s2 {
+  right: 23%;
+  top: 35%;
+  font-size: 1.6rem;
+}
+.s3 {
+  left: 29%;
+  top: 56%;
+  font-size: 0.85rem;
+}
+
+/* ---------- 元元 ---------- */
+.actor {
   position: absolute;
   left: 50%;
-  bottom: -18px;
-  width: 70%;
-  height: 20px;
+  top: 9%;
+  z-index: 3;
+  width: clamp(205px, 31vw, 292px);
+  height: 73%;
   transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--ink) 48%, transparent), transparent 70%);
+}
+.ground {
+  position: absolute;
+  left: 50%;
+  bottom: 1%;
+  width: 72%;
+  height: 24px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--ink) 24%, transparent), transparent 70%);
+}
+.performer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 88%;
+  will-change: transform, opacity;
+}
+.performer img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 7px color-mix(in srgb, var(--ink) 16%, transparent));
 }
 
-/* 片段动画（只动 transform / opacity） */
-.act-roll .puppet { animation-name: act-roll; }
-.act-stretch .puppet { animation-name: act-stretch; }
-.act-sway .puppet { animation-name: act-sway; }
-.act-spin .puppet { animation-name: act-spin; }
-@keyframes act-roll {
-  0% { transform: translateX(-30px) rotate(-8deg); }
-  50% { transform: translateX(30px) rotate(8deg) translateY(-6px); }
-  100% { transform: translateX(-30px) rotate(-8deg); }
+.move-walk {
+  animation: act-walk 1.25s cubic-bezier(0.3, 0.75, 0.25, 1) both;
 }
-@keyframes act-stretch {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  40% { transform: translateY(-12px) scaleY(1.07) rotate(-3deg); }
-  70% { transform: translateY(0) scaleY(0.96) rotate(3deg); }
+.move-heart {
+  animation: act-heart 1.15s var(--ease-pop) both;
 }
-@keyframes act-sway {
-  0%, 100% { transform: rotate(-6deg); }
-  50% { transform: rotate(6deg) translateY(-6px); }
+.move-wave {
+  animation: act-wave 1.25s ease-in-out both;
 }
-@keyframes act-spin {
-  0% { transform: rotate(0); }
-  100% { transform: rotate(-360deg); }
+.move-donut {
+  animation: act-donut 1.15s var(--ease-pop) both;
+}
+.move-sit {
+  animation: act-sit 1.05s var(--ease-pop) both;
+}
+.move-eat {
+  animation: act-eat 1.2s ease-in-out both;
 }
 
-/* 字幕 */
+@keyframes act-walk {
+  0% { opacity: 0; transform: translateX(-48px) translateY(4px) rotate(-6deg); }
+  18% { opacity: 1; }
+  36% { transform: translateX(-20px) translateY(-13px) rotate(4deg); }
+  60% { transform: translateX(20px) translateY(0) rotate(-4deg); }
+  80% { transform: translateX(5px) translateY(-8px) rotate(2deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes act-heart {
+  0% { opacity: 0; transform: scale(0.72) rotate(-6deg); }
+  34% { opacity: 1; transform: scale(1.08) rotate(2deg); }
+  56% { transform: scale(0.96) rotate(-1deg); }
+  76% { transform: scale(1.025); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes act-wave {
+  0% { opacity: 0; transform: translateY(18px) rotate(-10deg); }
+  22% { opacity: 1; }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-7deg); }
+  80% { transform: rotate(4deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes act-donut {
+  0% { opacity: 0; transform: translateY(-24px) scale(0.86); }
+  34% { opacity: 1; transform: translateY(3px) scale(1.035); }
+  54% { transform: rotate(-3deg); }
+  74% { transform: translateY(-5px) rotate(3deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes act-sit {
+  0% { opacity: 0; transform: translateY(-38px) scaleY(1.05); }
+  42% { opacity: 1; transform: translateY(5px) scaleY(0.96); }
+  68% { transform: translateY(-3px) scaleY(1.02); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes act-eat {
+  0% { opacity: 0; transform: translateY(14px) rotate(-3deg); }
+  22% { opacity: 1; }
+  40% { transform: translateY(-8px) rotate(2deg); }
+  60% { transform: translateY(0) rotate(-2deg); }
+  80% { transform: translateY(-4px) rotate(1deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+.love {
+  position: absolute;
+  z-index: 3;
+  color: var(--pink);
+  font-size: clamp(1.2rem, 2.6vw, 2rem);
+  text-shadow: 0 2px 0 var(--cream);
+  opacity: 0;
+  animation: love-pop 0.85s var(--ease-pop) both;
+}
+.l1 {
+  left: 12%;
+  top: 39%;
+  animation-delay: 0.32s;
+}
+.l2 {
+  right: 10%;
+  top: 26%;
+  animation-delay: 0.43s;
+}
+.l3 {
+  left: 43%;
+  top: 7%;
+  animation-delay: 0.54s;
+}
+@keyframes love-pop {
+  0% { opacity: 0; transform: translateY(12px) scale(0.4) rotate(-10deg); }
+  45% { opacity: 1; transform: translateY(-5px) scale(1.15) rotate(5deg); }
+  100% { opacity: 0; transform: translateY(-28px) scale(0.9); }
+}
+
+/* ---------- 动作字幕 ---------- */
 .caption {
   position: absolute;
-  left: 1.1rem;
-  bottom: 1.1rem;
-  max-width: min(56%, 340px);
-  padding: 0.7rem 0.95rem;
-  background: color-mix(in srgb, var(--cream) 92%, transparent);
+  left: 1.35rem;
+  bottom: 1.25rem;
+  z-index: 4;
+  width: min(31%, 310px);
+  padding: 0.75rem 0.95rem 0.8rem;
   border: 2px solid var(--ink);
-  border-radius: 3px 14px 3px 14px;
+  border-radius: 4px 16px 4px 16px;
+  background: color-mix(in srgb, var(--cream) 94%, transparent);
   box-shadow: var(--shadow-pop);
+  animation: caption-in 0.35s ease-out both;
 }
-.caption .owner {
+.eyebrow {
   margin: 0 0 0.15rem;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
   color: var(--orange);
+  font-family: var(--f-num);
+  font-size: 0.59rem;
   font-weight: 700;
+  letter-spacing: 0.12em;
 }
 .caption h2 {
   margin: 0 0 0.25rem;
-  font-family: var(--f-title);
-  font-size: 1.12rem;
   color: var(--ink);
+  font-family: var(--f-title);
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
   letter-spacing: 0.08em;
 }
-.caption .line {
+.line {
   margin: 0;
-  font-size: 0.74rem;
-  line-height: 1.7;
   color: var(--deep);
+  font-size: 0.73rem;
+  line-height: 1.65;
+}
+@keyframes caption-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
 
-/* 播放器控件 */
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.7rem 0.9rem;
-  background: var(--cream);
-  border-top: 3px solid var(--ink);
-}
-.play {
-  width: 40px;
-  height: 34px;
-  padding: 0;
-  background: var(--yellow);
-  border: 2.5px solid var(--ink);
-  border-radius: 10px 3px 10px 3px;
-  box-shadow: var(--shadow-pop);
-  font-size: 0.74rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s var(--ease-pop);
-}
-.play:hover {
-  transform: translateY(-2px);
-}
-.timeline {
-  flex: 1;
-  height: 7px;
-  border: 1.5px solid var(--rule);
-  border-radius: 999px;
-  background: var(--bg2);
-  overflow: hidden;
-}
-.fill {
-  display: block;
-  height: 100%;
-  background: var(--orange);
-  transition: width 0.1s linear;
-}
-.time {
-  font-family: var(--f-num);
-  font-size: 0.68rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-.speed {
-  padding: 0.2rem 0.55rem;
-  background: var(--bg2);
-  border: 2px solid var(--deep);
-  border-radius: 8px 3px 8px 3px;
-  font-family: var(--f-num);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--deep);
-  cursor: pointer;
-}
-
-/* 胶片网格 */
-.clips {
+/* ---------- 六格动作面板 ---------- */
+.actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 0.9rem;
-  margin-top: 1.2rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(0.55rem, 1.2vw, 0.9rem);
+  margin-top: 1.35rem;
 }
-.clip {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
-  padding: 0.95rem 0.6rem 1.15rem;
-  background: var(--bg2);
+.action {
+  min-width: 0;
+  padding: 0.5rem 0.5rem 0.6rem;
   border: 2px solid var(--rule);
-  border-radius: 14px 4px 14px 4px;
+  border-radius: 15px 5px 15px 5px;
+  background: var(--bg2);
+  color: var(--ink);
   cursor: pointer;
-  text-align: left;
-  transition: transform 0.3s var(--ease-pop), border-color 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s var(--ease-pop), border-color 0.2s, box-shadow 0.2s;
 }
-.clip::before,
-.clip::after {
-  content: '';
-  position: absolute;
-  left: 0.5rem;
-  right: 0.5rem;
-  height: 9px;
-  background: var(--ink);
-  background-image: radial-gradient(circle, var(--bg2) 2px, transparent 2.5px);
-  background-size: 12px 9px;
-  border-radius: 3px;
-  opacity: 0.75;
+.action:nth-child(3n + 1) .thumb {
+  background: color-mix(in srgb, var(--sky) 43%, var(--cream));
 }
-.clip::before {
-  top: 0.28rem;
+.action:nth-child(3n + 2) .thumb {
+  background: color-mix(in srgb, var(--pink) 32%, var(--cream));
 }
-.clip::after {
-  bottom: 0.28rem;
+.action:nth-child(3n) .thumb {
+  background: color-mix(in srgb, var(--yellow) 42%, var(--cream));
 }
-.clip:hover,
-.clip:focus-visible {
+.action:hover {
   transform: translateY(-4px);
   border-color: var(--orange);
-  outline: none;
 }
-.clip.on {
+.action:focus-visible {
+  outline: 3px dashed var(--orange);
+  outline-offset: 3px;
+}
+.action.on {
+  transform: translateY(-4px);
   border-color: var(--ink);
   background: var(--cream);
-  box-shadow: var(--shadow-pop);
+  box-shadow: 3px 4px 0 color-mix(in srgb, var(--ink) 18%, transparent);
 }
-.poster {
+.thumb {
   position: relative;
   display: block;
-  border-radius: 10px 2px 10px 2px;
+  aspect-ratio: 1.08 / 1;
   overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 11px 3px 11px 3px;
 }
-.poster img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  object-position: center 30%;
-}
-.dur {
+.thumb img {
   position: absolute;
-  right: 0.35rem;
-  bottom: 0.3rem;
-  padding: 0 0.4rem;
-  background: var(--cream);
-  border: 1.5px solid var(--ink);
-  border-radius: 4px;
+  inset: 9% 5% 3%;
+  width: 90%;
+  height: 88%;
+  object-fit: contain;
+  transition: transform 0.25s var(--ease-pop);
+}
+.action:hover .thumb img,
+.action.on .thumb img {
+  transform: scale(1.06);
+}
+.no {
+  position: absolute;
+  left: 0.35rem;
+  top: 0.2rem;
+  z-index: 2;
+  color: var(--deep);
   font-family: var(--f-num);
   font-size: 0.62rem;
-}
-.clip .cn {
-  margin-top: 0.4rem;
-  font-size: 0.82rem;
   font-weight: 700;
 }
-.clip .owner {
-  font-size: 0.66rem;
+.play-mark {
+  position: absolute;
+  right: 0.3rem;
+  bottom: 0.3rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding-left: 2px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--yellow);
+  font-size: 0.52rem;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: transform 0.2s var(--ease-pop), opacity 0.2s;
+}
+.action:hover .play-mark,
+.action.on .play-mark {
+  opacity: 1;
+  transform: scale(1);
+}
+.name {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--f-title);
+  font-size: clamp(0.72rem, 1.2vw, 0.88rem);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.en {
+  display: block;
+  margin-top: 0.08rem;
   color: var(--muted);
+  font-family: var(--f-num);
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
 }
 .tip {
-  text-align: center;
-  font-size: 0.76rem;
+  margin: 1.05rem 0 0.35rem;
   color: var(--muted);
-  margin: 1.1rem 0 0.4rem;
+  font-size: 0.76rem;
+  text-align: center;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-@media (max-width: 640px) {
-  .screen {
-    height: 360px;
+@media (max-width: 760px) {
+  .stage {
+    height: 420px;
   }
-  .puppet-area {
-    top: 14%;
-    width: clamp(140px, 38%, 190px);
+  .actor {
+    top: 8%;
+    width: clamp(180px, 51vw, 230px);
+    height: 60%;
+  }
+  .curtain {
+    width: 11%;
+  }
+  .counter {
+    right: 0.65rem;
+    top: 2.65rem;
+    font-size: 0.56rem;
+  }
+  .spark.s1 {
+    left: 15%;
+  }
+  .spark.s2 {
+    right: 13%;
   }
   .caption {
-    left: 0.6rem;
-    right: 0.6rem;
-    bottom: 0.6rem;
-    max-width: none;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: auto;
+    padding: 0.55rem 0.75rem 0.6rem;
+    text-align: center;
   }
-  .caption .line {
-    font-size: 0.7rem;
-    line-height: 1.55;
+  .caption h2 {
+    margin-bottom: 0.12rem;
   }
-  .time {
-    display: none;
+  .actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+  .name {
+    font-size: clamp(0.68rem, 2.8vw, 0.82rem);
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .spot,
-  .puppet-area,
-  .puppet {
+  .performer,
+  .love,
+  .caption {
     animation: none !important;
+  }
+  .action,
+  .thumb img,
+  .play-mark {
+    transition: none;
+  }
+  .action:hover,
+  .action.on,
+  .action:hover .thumb img,
+  .action.on .thumb img {
+    transform: none;
   }
 }
 </style>
