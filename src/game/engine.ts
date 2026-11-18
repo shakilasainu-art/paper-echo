@@ -4,6 +4,8 @@
  * 碰到地刺回到最近收集的碎片位置，不清空进度。
  */
 
+import { SHARD_PATHS } from '../config/shards'
+
 export type Dir = 'up' | 'down' | 'left' | 'right'
 
 export interface GameHandle {
@@ -26,8 +28,6 @@ const PLAYER_R = 12
 const FRAG_R = 16
 const SPEED = 190
 const FINISH_R = 29
-const FRAG_PATH =
-  'M38 14 a16 16 0 0 1 26 0 l2 8 12 1 a10 10 0 0 1 9 11 l-3 12 7 5 a16 16 0 0 1 -6 28 l-11 3 -2 12 a10 10 0 0 1 -13 8 l-12 -4 -8 8 a16 16 0 0 1 -27 -7 l-1 -12 -12 -3 a10 10 0 0 1 -7 -14 l6 -11 -6 -9 a16 16 0 0 1 9 -25 l12 -2 2 -11 a10 10 0 0 1 11 -9 z'
 
 interface Point {
   x: number
@@ -49,6 +49,7 @@ interface Frag extends Point {
   rot: number
   spin: number
   phase: number
+  shape: number
 }
 
 interface Trap extends Point {
@@ -218,7 +219,7 @@ export function createGame(canvas: HTMLCanvasElement, cb: GameCallbacks): GameHa
   if (!context) throw new Error('[paper-echo] Canvas 2D 不可用')
   const ctx: CanvasRenderingContext2D = context
   const palette = readPalette()
-  const fragPath = new Path2D(FRAG_PATH)
+  const fragPaths = SHARD_PATHS.map((d) => new Path2D(d))
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const lowEnd = (navigator.hardwareConcurrency ?? 8) <= 4
   const particlesOn = !reduced && !lowEnd
@@ -228,6 +229,7 @@ export function createGame(canvas: HTMLCanvasElement, cb: GameCallbacks): GameHa
     rot: i * 0.7,
     spin: (i % 2 ? -1 : 1) * 0.45,
     phase: i * 0.9,
+    shape: i % SHARD_PATHS.length,
   }))
   const traps: Trap[] = [0.13, 0.25, 0.37, 0.49, 0.61, 0.73, 0.88].map((at, i) => ({
     ...pointAt(at),
@@ -553,24 +555,60 @@ export function createGame(canvas: HTMLCanvasElement, cb: GameCallbacks): GameHa
 
   function drawFragment(f: Frag) {
     const bob = reduced ? 0 : Math.sin(state.t * 2.4 + f.phase) * 3
+    const fy = f.y + bob
+
+    // 地面投影
     ctx.save()
-    ctx.translate(f.x, f.y + bob)
+    ctx.globalAlpha = 0.16
+    ctx.fillStyle = palette.navy
+    ctx.beginPath()
+    ctx.ellipse(f.x + 3, fy + 19, 15, 5.5, 0, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+
+    ctx.save()
+    ctx.translate(f.x, fy)
     ctx.rotate(f.rot)
-    ctx.scale(0.32, 0.32)
+    ctx.scale(0.34, 0.34)
     ctx.translate(-50, -50)
-    ctx.shadowColor = palette.yellow
-    ctx.shadowBlur = 20
-    ctx.fillStyle = palette.yellow
-    ctx.strokeStyle = palette.orange
-    ctx.lineWidth = 7
-    ctx.lineJoin = 'round'
-    ctx.fill(fragPath)
+    const path = fragPaths[f.shape]!
+
+    // 侧面厚度：深金色垫底
+    ctx.save()
+    ctx.translate(2, 7)
+    ctx.fillStyle = '#C86C1C'
+    ctx.fill(path)
+    ctx.restore()
+
+    // 顶面：上亮下暗的金色渐变 + 外发光
+    const gold = ctx.createLinearGradient(0, 6, 0, 94)
+    gold.addColorStop(0, '#FFF3C0')
+    gold.addColorStop(0.36, '#FCE07A')
+    gold.addColorStop(0.72, '#F5C842')
+    gold.addColorStop(1, '#E6A02A')
+    ctx.shadowColor = 'rgba(245, 200, 66, 0.85)'
+    ctx.shadowBlur = 16
+    ctx.fillStyle = gold
+    ctx.fill(path)
     ctx.shadowBlur = 0
-    ctx.stroke(fragPath)
+
+    // 顶面高光
+    ctx.save()
+    ctx.globalAlpha = 0.6
+    ctx.fillStyle = '#FFFDF0'
+    ctx.beginPath()
+    ctx.ellipse(38, 34, 14, 8, -0.55, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+
+    ctx.strokeStyle = '#D98A24'
+    ctx.lineWidth = 3.2
+    ctx.lineJoin = 'round'
+    ctx.stroke(path)
     ctx.restore()
 
     ctx.fillStyle = palette.orange
-    star(ctx, f.x + 13, f.y + bob - 12, 4)
+    star(ctx, f.x + 14, fy - 14, 4)
   }
 
   function drawTrap(trap: Trap) {

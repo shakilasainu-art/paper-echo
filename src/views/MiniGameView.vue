@@ -130,17 +130,34 @@ onBeforeUnmount(() => {
       </div>
 
       <div v-else-if="phase === 'merging'" class="overlay merge" role="status">
-        <svg class="crown m-pop-center" viewBox="0 0 100 70" aria-hidden="true">
+        <svg class="crown m-pop-center" viewBox="0 0 100 78" aria-hidden="true">
+          <defs>
+            <linearGradient id="mg-crown-face" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FFF3C0" />
+              <stop offset="0.38" stop-color="#FCE07A" />
+              <stop offset="0.74" stop-color="#F5C842" />
+              <stop offset="1" stop-color="#E6A02A" />
+            </linearGradient>
+          </defs>
+          <!-- 侧面厚度 -->
           <path
-            d="M8 58 L14 16 L33 36 L50 8 L67 36 L86 16 L92 58 Q50 66 8 58 Z"
-            fill="var(--yellow)"
-            stroke="var(--party-deep)"
-            stroke-width="4"
+            d="M10 64 V47 L23 27 Q26 21 30 27 L39 41 L45 22 Q50 15 55 22 L61 41 L70 27 Q74 21 77 27 L90 47 V64 Q50 71 10 64 Z"
+            fill="#C86C1C"
+            transform="translate(2 8)"
+          />
+          <!-- 顶面 -->
+          <path
+            d="M10 64 V47 L23 27 Q26 21 30 27 L39 41 L45 22 Q50 15 55 22 L61 41 L70 27 Q74 21 77 27 L90 47 V64 Q50 71 10 64 Z"
+            fill="url(#mg-crown-face)"
+            stroke="#D98A24"
+            stroke-width="3.2"
             stroke-linejoin="round"
           />
-          <circle cx="24" cy="48" r="4" fill="var(--orange)" />
-          <circle cx="50" cy="46" r="4" fill="var(--green)" />
-          <circle cx="76" cy="48" r="4" fill="var(--sky)" />
+          <!-- 顶面高光 -->
+          <ellipse cx="32" cy="58" rx="14" ry="4.5" fill="#FFFDF0" opacity="0.45" transform="rotate(-4 32 58)" />
+          <ellipse cx="49" cy="26" rx="3.4" ry="4.6" fill="#FFFDF0" opacity="0.5" />
+          <!-- 冠带高光 -->
+          <path d="M14 53 Q50 59 86 53" fill="none" stroke="#FFF3C4" stroke-width="2.4" stroke-linecap="round" opacity="0.5" />
         </svg>
         <h2>皇冠正在拼合…</h2>
         <p class="desc">七块记忆都回来了，蓝白派对的灯正在聚拢。</p>
@@ -310,7 +327,7 @@ onBeforeUnmount(() => {
   color: var(--party-deep);
   line-height: 1.65;
 }
-.merge .crown { width: 110px; }
+.merge .crown { width: 140px; }
 .merge h2 { font-size: 1.25rem; }
 
 .dpad {
