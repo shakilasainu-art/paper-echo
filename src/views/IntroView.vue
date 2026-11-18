@@ -3,16 +3,14 @@
  * 00 开屏
  * 第一幕：皇冠短片（静音自动播放，播完或跳过后进入第二幕）
  * 第二幕：七块金色皇冠碎片漂浮在空中，随后 LOGO 与进入按钮浮现
- * 每个会话只播放一次；?replay=1 可重看
+ * 每次进入开屏都完整播放；缓存/弱网异常时重试或超时兜底
  */
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
-const INTRO_KEY = 'pe-intro-seen'
 const crownVideo = new URL('../assets/video/crown-intro.mp4', import.meta.url).href
 const poster = new URL('../assets/img/pe_intro_crown_poster.webp', import.meta.url).href
 
-const route = useRoute()
 const router = useRouter()
 
 const show = ref(false) // 首帧不渲染，避免跳转时闪一下
@@ -21,6 +19,7 @@ const chars = ['碎', '冠', '忆', '旅']
 const videoEl = ref<HTMLVideoElement | null>(null)
 
 let watchdog: ReturnType<typeof setTimeout> | undefined
+let reloaded = false
 
 function toCrown() {
   clearTimeout(watchdog)
@@ -37,19 +36,40 @@ function armWatchdog() {
   }, Math.min(ms, 16000))
 }
 
-onMounted(() => {
-  const replay = route.query.replay === '1'
-  if (!replay && sessionStorage.getItem(INTRO_KEY)) {
-    router.replace('/home')
+function tryPlay() {
+  videoEl.value?.play().catch(() => {
+    // 自动播放被拦截时等用户第一次点击再播，不直接跳过动画
+    window.addEventListener('pointerdown', retryPlay, { once: true })
+  })
+}
+
+function retryPlay() {
+  videoEl.value?.play().catch(() => {})
+}
+
+/** 视频加载失败（多为资源刚更新、CDN 未生效）时重试一次，仍失败才进入皇冠 */
+function onError() {
+  if (reloaded) {
+    toCrown()
     return
   }
+  reloaded = true
+  setTimeout(() => {
+    const v = videoEl.value
+    if (!v) return
+    v.load()
+    tryPlay()
+  }, 900)
+}
+
+onMounted(() => {
   show.value = true
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     toCrown()
     return
   }
   nextTick(() => {
-    videoEl.value?.play().catch(toCrown)
+    tryPlay()
     armWatchdog()
   })
 })
@@ -57,7 +77,6 @@ onMounted(() => {
 onBeforeUnmount(() => clearTimeout(watchdog))
 
 function enter() {
-  sessionStorage.setItem(INTRO_KEY, '1')
   router.replace('/home')
 }
 </script>
@@ -81,8 +100,9 @@ function enter() {
         playsinline
         preload="auto"
         @loadedmetadata="armWatchdog"
+        @playing="armWatchdog"
         @ended="toCrown"
-        @error="toCrown"
+        @error="onError"
       ></video>
 
       <!-- 第二幕：七块碎片漂浮 -->
