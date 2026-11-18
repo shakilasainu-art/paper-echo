@@ -21,7 +21,7 @@ export const STORY_PULL_NOTE = '—— 元元的向导手记'
 
 export const ENDING_COPY = {
   kicker: '07 / 07 · 记忆完整',
-  title: '碎冠忆游',
+  title: '碎冠忆旅',
   lead: '七块碎片回到了原来的位置，房间里的灯一盏一盏醒了过来。',
   lines: [
     '皇冠亮起来的那一刻，纸境里所有没说完的话，都接上了下半句。',
@@ -29,7 +29,7 @@ export const ENDING_COPY = {
     '谢谢你慢慢地走完这趟旅程。纸会记住碰过它的人，也会记住你。',
   ],
   sign: '—— 纸境手记 · 最后一页',
-  shareTitle: '碎冠忆游 · 纪念卡',
+  shareTitle: '碎冠忆旅 · 纪念卡',
   shareQuote: '故事不会消失，它只是碎成了光。',
 }
 

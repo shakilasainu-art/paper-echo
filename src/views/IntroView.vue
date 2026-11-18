@@ -7,7 +7,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const INTRO_KEY = 'pe-intro-seen'
-const chars = ['碎', '冠', '忆', '游']
+const chars = ['碎', '冠', '忆', '旅']
 
 const route = useRoute()
 const router = useRouter()
@@ -35,7 +35,7 @@ function enter() {
 
     <div class="logo">
       <p class="en">SHATTERED CROWN</p>
-      <h1 class="cn" aria-label="碎冠忆游">
+      <h1 class="cn" aria-label="碎冠忆旅">
         <span
           v-for="(ch, i) in chars"
           :key="i"
@@ -56,7 +56,7 @@ function enter() {
     </div>
 
     <p class="tag">收集记忆碎片，拼回完整的皇冠</p>
-    <button type="button" class="btn-primary enter" @click="enter">进入碎冠忆游</button>
+    <button type="button" class="btn-primary enter" @click="enter">进入碎冠忆旅</button>
   </div>
 </template>
 
