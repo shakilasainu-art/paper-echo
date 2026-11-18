@@ -30,5 +30,5 @@ export const FRAGMENT_POS: Record<ChapterId, { x: number; y: number }> = {
   '04': { x: 22, y: 62 },
   '05': { x: 52, y: 70 },
   '06': { x: 82, y: 58 },
-  '07': { x: 50, y: 44 },
+  '07': { x: 50, y: 36 },
 }

@@ -157,7 +157,7 @@ function onClick() {
   padding-top: 4%;
   font-family: var(--f-num);
   font-weight: 700;
-  font-size: clamp(0.6rem, 1.1vw, 0.85rem);
+  font-size: clamp(0.8rem, 1.5vw, 1.1rem);
   color: var(--deep);
   pointer-events: none;
 }
@@ -169,7 +169,7 @@ function onClick() {
   position: absolute;
   top: 2%;
   right: 4%;
-  font-size: clamp(0.6rem, 1vw, 0.8rem);
+  font-size: clamp(0.75rem, 1.3vw, 1rem);
   color: var(--orange);
   pointer-events: none;
 }

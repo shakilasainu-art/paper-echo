@@ -60,7 +60,7 @@ function selectFragment(id: (typeof CHAPTERS)[number]['id']) {
           :style="{
             left: FRAGMENT_POS[c.id].x + '%',
             top: FRAGMENT_POS[c.id].y + '%',
-            width: 'clamp(46px, 10.5%, 72px)',
+            width: 'clamp(64px, 12%, 96px)',
           }"
           @select="selectFragment"
         />
@@ -132,7 +132,7 @@ function selectFragment(id: (typeof CHAPTERS)[number]['id']) {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: var(--z-crown);
-  width: clamp(72px, 14%, 104px);
+  width: clamp(96px, 16%, 132px);
   /* 用固定 padding：百分比 padding 会按 .room 宽度解析，窄屏会把 SVG 挤扁 */
   padding: 0.5rem 0.4rem 0.3rem;
   background: var(--cream);
@@ -162,7 +162,7 @@ function selectFragment(id: (typeof CHAPTERS)[number]['id']) {
   border-radius: 999px;
   font-family: var(--f-num);
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.88rem;
   white-space: nowrap;
 }
 
