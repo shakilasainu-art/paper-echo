@@ -140,7 +140,7 @@ function drawCard(): HTMLCanvasElement {
   g.textAlign = 'center'
   g.fillStyle = col.orange
   g.font = '700 22px "Outfit", "PingFang SC", sans-serif'
-  g.fillText('PAPER ECHO · MEMORY CARD', W / 2, 118)
+  g.fillText('SHATTERED CROWN · MEMORY CARD', W / 2, 118)
 
   // 光晕
   g.fillStyle = col.bg2
@@ -181,11 +181,11 @@ function drawCard(): HTMLCanvasElement {
   // 标题
   g.fillStyle = col.ink
   g.font = '700 50px "ZCOOL KuaiLe", "Microsoft YaHei", sans-serif'
-  g.fillText('记忆完整 · 纸境回响', W / 2, 528)
+  g.fillText('记忆完整 · 碎冠忆游', W / 2, 528)
 
   g.fillStyle = col.muted
   g.font = '500 22px "PingFang SC", "Microsoft YaHei", sans-serif'
-  g.fillText('07 / 07 · 纸境回响', W / 2, 570)
+  g.fillText('07 / 07 · 碎冠忆游', W / 2, 570)
 
   // 分隔虚线
   g.strokeStyle = col.rule
