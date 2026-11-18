@@ -15,7 +15,7 @@ const progress = useProgress()
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const FRAG_PATH =
-  'M38 14 a16 16 0 0 1 26 0 l2 8 12 1 a10 10 0 0 1 9 11 l-3 12 7 5 a16 16 0 0 1 -6 28 l-11 3 -2 12 a10 10 0 0 1 -13 8 l-12 -4 -8 8 a16 16 0 0 1 -27 -7 l-1 -12 -12 -3 a10 10 0 0 1 -7 -14 l6 -11 -6 -9 a16 16 0 0 1 9 -25 l12 -2 2 -11 a10 10 0 0 1 11 -9 z'
+  'M50 8 C 58 26, 70 50, 76 64 C 82 78, 72 90, 56 88 L44 88 C 28 90, 18 78, 24 64 C 30 50, 42 26, 50 8 Z'
 
 /** 碎片的起点（四散）与终点（围绕皇冠）——px */
 const SHARD_START = [
@@ -152,7 +152,9 @@ function drawCard(): HTMLCanvasElement {
   g.stroke()
 
   // 皇冠
-  const crown = new Path2D('M8 58 L14 16 L33 36 L50 8 L67 36 L86 16 L92 58 Q50 66 8 58 Z')
+  const crown = new Path2D(
+    'M10 64 V46 L24 24 Q28 17 32 24 L42 40 L46 14 Q50 7 54 14 L58 40 L68 24 Q72 17 76 24 L90 46 V64 Q50 70 10 64 Z',
+  )
   g.save()
   g.translate(W / 2, 300)
   g.scale(3.1, 3.1)
@@ -163,20 +165,13 @@ function drawCard(): HTMLCanvasElement {
   g.lineWidth = 4.2
   g.lineJoin = 'round'
   g.stroke(crown)
+  // 冠带描边（参考角色皇冠的橙色镶边）
+  const rim = new Path2D('M14 52 Q50 58 86 52')
+  g.strokeStyle = col.orange
+  g.lineWidth = 2.8
+  g.lineCap = 'round'
+  g.stroke(rim)
   g.restore()
-
-  // 宝石
-  const gems: [number, number, string][] = [
-    [24, 48, col.orange],
-    [50, 46, col.green],
-    [76, 48, col.sky],
-  ]
-  for (const [cx, cy, color] of gems) {
-    g.beginPath()
-    g.arc(W / 2 + (cx - 50) * 3.1, 300 + (cy - 35) * 3.1, 4 * 3.1, 0, Math.PI * 2)
-    g.fillStyle = color
-    g.fill()
-  }
 
   // 标题
   g.fillStyle = col.ink
@@ -310,15 +305,19 @@ onBeforeUnmount(() => window.clearTimeout(noteTimer))
 
       <svg class="crown" viewBox="0 0 100 70" role="img" aria-label="拼合完成的皇冠">
         <path
-          d="M8 58 L14 16 L33 36 L50 8 L67 36 L86 16 L92 58 Q50 66 8 58 Z"
+          d="M10 64 V46 L24 24 Q28 17 32 24 L42 40 L46 14 Q50 7 54 14 L58 40 L68 24 Q72 17 76 24 L90 46 V64 Q50 70 10 64 Z"
           fill="var(--yellow)"
           stroke="var(--ink)"
           stroke-width="4"
           stroke-linejoin="round"
         />
-        <circle cx="24" cy="48" r="4" fill="var(--orange)" />
-        <circle cx="50" cy="46" r="4" fill="var(--green)" />
-        <circle cx="76" cy="48" r="4" fill="var(--sky)" />
+        <path
+          d="M14 52 Q50 58 86 52"
+          fill="none"
+          stroke="var(--orange)"
+          stroke-width="3"
+          stroke-linecap="round"
+        />
       </svg>
 
       <span

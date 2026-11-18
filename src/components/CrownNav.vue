@@ -75,10 +75,8 @@ function replayIntro() {
           tabindex="-1"
         >
           <svg class="crown m-pop-center" viewBox="0 0 100 70" aria-hidden="true">
-            <path d="M8 58 L14 16 L33 36 L50 8 L67 36 L86 16 L92 58 Q50 66 8 58 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" />
-            <circle cx="24" cy="48" r="4" fill="var(--orange)" />
-            <circle cx="50" cy="46" r="4" fill="var(--green)" />
-            <circle cx="76" cy="48" r="4" fill="var(--sky)" />
+            <path d="M10 64 V46 L24 24 Q28 17 32 24 L42 40 L46 14 Q50 7 54 14 L58 40 L68 24 Q72 17 76 24 L90 46 V64 Q50 70 10 64 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" />
+            <path d="M14 52 Q50 58 86 52" fill="none" stroke="var(--orange)" stroke-width="3" stroke-linecap="round" />
           </svg>
 
           <p class="title">选择一块拼图，进入它的记忆</p>
