@@ -6,6 +6,7 @@
  */
 import { computed, ref, watch } from 'vue'
 import type { ChapterId } from '../config/chapters'
+import { SHARD_PATHS } from '../config/shards'
 import type { FragState } from '../stores/progress'
 
 const props = withDefaults(
@@ -19,6 +20,9 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{ (e: 'select', id: ChapterId): void }>()
+
+/** 每块碎片用不同轮廓，拼起来才像真的碎冠 */
+const shard = computed(() => SHARD_PATHS[(Number(props.id) - 1) % SHARD_PATHS.length])
 
 const shaking = ref(false)
 const burstKey = ref(0)
@@ -71,9 +75,7 @@ function onClick() {
     @click="onClick"
   >
     <svg viewBox="0 0 100 100" aria-hidden="true">
-      <path
-        d="M50 8 C 58 26, 70 50, 76 64 C 82 78, 72 90, 56 88 L44 88 C 28 90, 18 78, 24 64 C 30 50, 42 26, 50 8 Z"
-      />
+      <path :d="shard" />
     </svg>
     <span class="num" aria-hidden="true">{{ id }}</span>
     <span v-if="state === 'lit'" class="badge" aria-hidden="true">✦</span>

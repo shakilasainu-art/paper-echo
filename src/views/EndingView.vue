@@ -7,6 +7,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ENDING_COPY } from '../config/content'
+import { SHARD_PATHS } from '../config/shards'
 import { useProgress } from '../stores/progress'
 
 const router = useRouter()
@@ -14,8 +15,7 @@ const progress = useProgress()
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-const FRAG_PATH =
-  'M50 8 C 58 26, 70 50, 76 64 C 82 78, 72 90, 56 88 L44 88 C 28 90, 18 78, 24 64 C 30 50, 42 26, 50 8 Z'
+const FRAG_PATHS = SHARD_PATHS
 
 /** 碎片的起点（四散）与终点（围绕皇冠）——px */
 const SHARD_START = [
@@ -212,10 +212,10 @@ function drawCard(): HTMLCanvasElement {
   }
 
   // 七块小碎片
-  const fragPath = new Path2D(FRAG_PATH)
   const gap = 46
   const startX = W / 2 - (gap * 6) / 2
   for (let i = 0; i < 7; i++) {
+    const fragPath = new Path2D(SHARD_PATHS[i])
     g.save()
     g.translate(startX + i * gap, 820)
     g.scale(0.26, 0.26)
@@ -328,7 +328,7 @@ onBeforeUnmount(() => window.clearTimeout(noteTimer))
         aria-hidden="true"
       >
         <svg viewBox="0 0 100 100">
-          <path :d="FRAG_PATH" />
+          <path :d="FRAG_PATHS[i]" />
         </svg>
       </span>
     </section>
