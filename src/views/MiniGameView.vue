@@ -5,6 +5,7 @@
  */
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
+import { CROWN_BAND, CROWN_BODY } from '../config/crown'
 import { GAME_TOTAL, createGame, type Dir, type GameHandle } from '../game/engine'
 import { useProgress } from '../stores/progress'
 import HudSlots from '../components/HudSlots.vue'
@@ -130,23 +131,23 @@ onBeforeUnmount(() => {
       </div>
 
       <div v-else-if="phase === 'merging'" class="overlay merge" role="status">
-        <!-- 元元头戴的软塑皇冠：三圆尖 + 橙色冠带，立体造型 -->
-        <svg class="crown m-pop-center" viewBox="0 0 100 88" aria-hidden="true">
+        <!-- 元元头戴的软塑皇冠：左低角、中大尖、右最高角，底部圆环冠带，立体造型 -->
+        <svg class="crown m-pop-center" viewBox="0 0 100 66" aria-hidden="true">
           <defs>
-            <linearGradient id="mg-face" x1="0.12" y1="0" x2="0.45" y2="1">
-              <stop offset="0" stop-color="#FFF9DC" />
-              <stop offset="0.28" stop-color="#FFE9A2" />
-              <stop offset="0.6" stop-color="#FBD269" />
-              <stop offset="1" stop-color="#EDB244" />
+            <linearGradient id="mg-face" x1="0.1" y1="0" x2="0.44" y2="1">
+              <stop offset="0" stop-color="#FFF6C4" />
+              <stop offset="0.3" stop-color="#FFE27E" />
+              <stop offset="0.62" stop-color="#F8CE4C" />
+              <stop offset="1" stop-color="#EBAA33" />
             </linearGradient>
-            <linearGradient id="mg-band" x1="0" y1="0" x2="0.16" y2="1">
-              <stop offset="0" stop-color="#FFE7A8" />
-              <stop offset="0.42" stop-color="#F8C96C" />
-              <stop offset="1" stop-color="#DE9F3D" />
+            <linearGradient id="mg-band" x1="0" y1="0" x2="0.2" y2="1">
+              <stop offset="0" stop-color="#FFD98F" />
+              <stop offset="0.45" stop-color="#F9AE4E" />
+              <stop offset="1" stop-color="#DE8C2C" />
             </linearGradient>
-            <linearGradient id="mg-shade" x1="0.28" y1="0" x2="1" y2="0">
-              <stop offset="0.42" stop-color="#D9902F" stop-opacity="0" />
-              <stop offset="1" stop-color="#C57C22" stop-opacity="0.42" />
+            <linearGradient id="mg-shade" x1="0.3" y1="0" x2="1" y2="0">
+              <stop offset="0.45" stop-color="#D6841A" stop-opacity="0" />
+              <stop offset="1" stop-color="#BE7014" stop-opacity="0.32" />
             </linearGradient>
             <filter id="mg-soft" x="-40%" y="-40%" width="180%" height="180%">
               <feGaussianBlur stdDeviation="2.2" />
@@ -155,64 +156,38 @@ onBeforeUnmount(() => {
               <feGaussianBlur stdDeviation="1.1" />
             </filter>
             <clipPath id="mg-clip-body">
-              <path d="M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z" />
+              <path :d="CROWN_BODY" />
             </clipPath>
             <clipPath id="mg-clip-band">
-              <rect x="14" y="50" width="72" height="18" rx="7.5" />
+              <path :d="CROWN_BAND" />
             </clipPath>
           </defs>
 
           <!-- 落影 -->
-          <ellipse cx="52" cy="82" rx="36" ry="3" fill="#93A9C4" opacity="0.22" filter="url(#mg-soft)" />
+          <ellipse cx="52" cy="60" rx="36" ry="3" fill="#8FA6C8" opacity="0.22" filter="url(#mg-soft)" />
           <!-- 冠体侧面厚度 -->
-          <path
-            d="M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z"
-            fill="#D9902F"
-            transform="translate(3 5)"
-          />
+          <path :d="CROWN_BODY" fill="#C87A18" transform="translate(3 5)" />
           <!-- 冠带侧面厚度 -->
-          <rect x="14" y="50" width="72" height="18" rx="7.5" fill="#C9802A" transform="translate(3 4.5)" />
+          <path :d="CROWN_BAND" fill="#B06C18" transform="translate(2.5 4)" />
           <!-- 冠体正面 + 明暗（裁切在冠体内） -->
           <g clip-path="url(#mg-clip-body)">
-            <path
-              d="M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z"
-              fill="url(#mg-face)"
-            />
-            <!-- 右侧体积暗面 -->
-            <path
-              d="M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z"
-              fill="url(#mg-shade)"
-            />
-            <!-- 山谷内侧暗部 -->
-            <path d="M29 42 C30 37 31 33 32 29" fill="none" stroke="#DE9E34" stroke-width="5" stroke-linecap="round" opacity="0.2" filter="url(#mg-soft)" />
-            <path d="M63 41 C64 36 65 32 66 28" fill="none" stroke="#DE9E34" stroke-width="4" stroke-linecap="round" opacity="0.16" filter="url(#mg-soft)" />
-            <!-- 中央尖角高光 -->
-            <ellipse cx="48" cy="22" rx="6.5" ry="10" fill="#FFFDF4" opacity="0.55" transform="rotate(-8 48 22)" filter="url(#mg-soft)" />
-            <!-- 左尖轮廓光 -->
-            <path d="M12 44 C11 37 13 30 18 27" fill="none" stroke="#FFFBEC" stroke-width="2" stroke-linecap="round" opacity="0.55" filter="url(#mg-soft-lite)" />
-            <!-- 右尖高光 -->
-            <ellipse cx="84" cy="22" rx="2.4" ry="4" fill="#FFFDF4" opacity="0.4" transform="rotate(-14 84 22)" filter="url(#mg-soft-lite)" />
+            <path :d="CROWN_BODY" fill="url(#mg-face)" />
+            <path :d="CROWN_BODY" fill="url(#mg-shade)" />
+            <ellipse cx="42" cy="18" rx="5.5" ry="8" fill="#FFFDF2" opacity="0.5" transform="rotate(-10 42 18)" filter="url(#mg-soft)" />
+            <ellipse cx="78" cy="11" rx="3" ry="4.6" fill="#FFFDF2" opacity="0.42" transform="rotate(-16 78 11)" filter="url(#mg-soft-lite)" />
+            <path d="M8 36 C5 29 5 24 7 20" fill="none" stroke="#FFF9E2" stroke-width="2" stroke-linecap="round" opacity="0.5" filter="url(#mg-soft-lite)" />
+            <path d="M25 32 C24 28 25 25 26 22" fill="none" stroke="#D99B26" stroke-width="4.6" stroke-linecap="round" opacity="0.13" filter="url(#mg-soft)" />
           </g>
           <!-- 冠体轮廓 -->
-          <path
-            d="M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z"
-            fill="none"
-            stroke="#E8AC46"
-            stroke-width="1"
-            stroke-linejoin="round"
-          />
+          <path :d="CROWN_BODY" fill="none" stroke="#F2C058" stroke-width="0.8" stroke-linejoin="round" />
           <!-- 冠带正面 + 明暗 -->
           <g clip-path="url(#mg-clip-band)">
-            <rect x="14" y="50" width="72" height="18" rx="7.5" fill="url(#mg-band)" />
-            <!-- 冠带接缝暗部 -->
-            <path d="M18 63 C34 67 66 67 82 63" fill="none" stroke="#D2922F" stroke-width="5" opacity="0.28" filter="url(#mg-soft)" />
-            <!-- 冠带顶部亮边 -->
-            <path d="M18 55 C34 51 66 51 82 55" fill="none" stroke="#FFF6D8" stroke-width="3.2" stroke-linecap="round" opacity="0.6" filter="url(#mg-soft-lite)" />
-            <!-- 冠带左下反光 -->
-            <ellipse cx="30" cy="63" rx="10" ry="2.4" fill="#FFEDBE" opacity="0.4" filter="url(#mg-soft)" />
+            <path :d="CROWN_BAND" fill="url(#mg-band)" />
+            <path d="M7 45 C28 51 63 47 88 37" fill="none" stroke="#FFF3C8" stroke-width="2" stroke-linecap="round" opacity="0.5" filter="url(#mg-soft-lite)" />
+            <path d="M10 54 C32 59 60 54 86 43" fill="none" stroke="#C87A18" stroke-width="2.8" stroke-linecap="round" opacity="0.22" filter="url(#mg-soft)" />
           </g>
           <!-- 冠带轮廓 -->
-          <rect x="14" y="50" width="72" height="18" rx="7.5" fill="none" stroke="#E4A64A" stroke-width="1" />
+          <path :d="CROWN_BAND" fill="none" stroke="#E7AE38" stroke-width="0.9" />
         </svg>
         <h2>皇冠正在拼合…</h2>
         <p class="desc">七块记忆都回来了，蓝白派对的灯正在聚拢。</p>
