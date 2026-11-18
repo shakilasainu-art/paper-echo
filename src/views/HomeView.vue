@@ -42,7 +42,7 @@ function selectFragment(id: (typeof CHAPTERS)[number]['id']) {
   <div class="home">
     <div class="room-wrap">
       <div class="room">
-        <!-- 层 1：房间底图（M1 为 CSS 占位，M2 替换为房间插画） -->
+        <!-- 层 1：首页草地背景 -->
         <div class="room-bg" aria-hidden="true"></div>
 
         <!-- 层 2：光斑两层景深 -->
@@ -96,37 +96,29 @@ function selectFragment(id: (typeof CHAPTERS)[number]['id']) {
 .home {
   min-height: 100dvh;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  padding: 1.2rem;
+  padding: 0;
 }
 .room-wrap {
+  position: relative;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.9rem;
+  height: 100dvh;
 }
 .room {
   position: relative;
-  width: min(92vw, 1040px);
-  aspect-ratio: 16 / 10;
-  border-radius: var(--r-panel);
-  border: 3px solid var(--rule);
-  box-shadow: var(--shadow-pop);
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background: var(--bg2);
 }
 
-/* 房间底图：草绿墙 + 暖木地板 + 窗光（全部由令牌色派生） */
+/* 首页底图：图二草地插画，等比裁切铺满整个视口 */
 .room-bg {
   position: absolute;
   inset: 0;
   z-index: var(--z-room-bg);
-  background:
-    radial-gradient(circle at 26% 16%, rgba(255, 248, 231, 0.9) 0%, rgba(255, 248, 231, 0) 34%),
-    linear-gradient(180deg, transparent 0 64%, rgba(51, 64, 42, 0.16) 64% 67%, #E4C274 67% 100%),
-    linear-gradient(180deg, #A9CD7F 0%, var(--green) 100%);
+  background: url('/assets/home-meadow.jpg') center / cover no-repeat;
 }
 
 .layer {
@@ -175,6 +167,16 @@ function selectFragment(id: (typeof CHAPTERS)[number]['id']) {
 }
 
 .hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  z-index: var(--z-crown);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  padding: 0.2rem 0.8rem;
+  background: var(--cream);
+  border-radius: 999px;
   color: var(--muted);
   font-size: 0.85rem;
   margin: 0;
