@@ -186,6 +186,7 @@ function enter() {
   position: absolute;
   top: 1.2rem;
   right: 1.2rem;
+  z-index: 3;
   padding: 0.35rem 1rem;
   background: var(--bg2);
   border: 2px dashed var(--locked-line);
@@ -208,15 +209,17 @@ function enter() {
   min-height: clamp(220px, 40vh, 370px);
 }
 
-/* 第一幕：短片（992 × 432） */
+/* 第一幕：短片，铺满全屏（854 × 480，等比裁切） */
 .film {
-  width: min(94vw, 780px);
-  aspect-ratio: 62 / 27;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   object-fit: cover;
-  background: #e6efd8;
-  border: 3px solid var(--ink);
-  border-radius: 24px;
-  box-shadow: var(--shadow-pop), 0 18px 40px rgba(51, 64, 42, 0.16);
+  object-position: center;
+  background: #0e1408;
   animation: film-in 0.6s ease both;
 }
 @keyframes film-in {
@@ -357,10 +360,6 @@ function enter() {
 @media (max-width: 560px) {
   .stage {
     min-height: clamp(180px, 32vh, 260px);
-  }
-  .film {
-    width: 94vw;
-    border-radius: 18px;
   }
 }
 
