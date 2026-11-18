@@ -5,7 +5,7 @@
  * 第二幕：七块金色皇冠碎片漂浮在空中，随后 LOGO 与进入按钮浮现
  * 每个会话只播放一次；?replay=1 可重看
  */
-import { nextTick, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const INTRO_KEY = 'pe-intro-seen'
@@ -20,8 +20,21 @@ const phase = ref<'video' | 'crown'>('video')
 const chars = ['碎', '冠', '忆', '旅']
 const videoEl = ref<HTMLVideoElement | null>(null)
 
+let watchdog: ReturnType<typeof setTimeout> | undefined
+
 function toCrown() {
+  clearTimeout(watchdog)
   phase.value = 'crown'
+}
+
+/** 网络慢时视频会一直卡在缓冲，超时直接进入碎片皇冠，避免停在第一帧 */
+function armWatchdog() {
+  clearTimeout(watchdog)
+  const dur = videoEl.value?.duration
+  const ms = Number.isFinite(dur) && dur ? dur * 1000 + 6000 : 12000
+  watchdog = setTimeout(() => {
+    if (phase.value === 'video') toCrown()
+  }, Math.min(ms, 16000))
 }
 
 onMounted(() => {
@@ -37,8 +50,11 @@ onMounted(() => {
   }
   nextTick(() => {
     videoEl.value?.play().catch(toCrown)
+    armWatchdog()
   })
 })
+
+onBeforeUnmount(() => clearTimeout(watchdog))
 
 function enter() {
   sessionStorage.setItem(INTRO_KEY, '1')
@@ -64,6 +80,7 @@ function enter() {
         muted
         playsinline
         preload="auto"
+        @loadedmetadata="armWatchdog"
         @ended="toCrown"
         @error="toCrown"
       ></video>
