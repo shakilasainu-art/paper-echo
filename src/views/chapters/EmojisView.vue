@@ -130,6 +130,7 @@ onBeforeUnmount(() => {
 .wall {
   position: relative;
   width: 100vw;
+  box-sizing: border-box;
   margin-left: calc(50% - 50vw);
   min-height: min(80vh, 680px);
   padding: 2rem 1rem 2.2rem;

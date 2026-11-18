@@ -152,6 +152,7 @@ function toggle() {
 .chars {
   position: relative;
   width: 100vw;
+  box-sizing: border-box;
   margin-left: calc(50% - 50vw);
   min-height: min(80vh, 700px);
   padding: 1.8rem 1rem 2.2rem;
