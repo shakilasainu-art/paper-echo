@@ -71,9 +71,9 @@ function selectFragment(id: (typeof CHAPTERS)[number]['id']) {
           aria-label="打开皇冠导航"
           @click="navOpen = true"
         >
-          <svg viewBox="0 0 100 70" aria-hidden="true">
-            <path d="M10 64 V46 L24 24 Q28 17 32 24 L42 40 L46 14 Q50 7 54 14 L58 40 L68 24 Q72 17 76 24 L90 46 V64 Q50 70 10 64 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" />
-            <path d="M14 52 Q50 58 86 52" fill="none" stroke="var(--orange)" stroke-width="3" stroke-linecap="round" />
+          <svg viewBox="0 0 100 78" aria-hidden="true">
+            <path d="M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round" />
+            <rect x="14" y="50" width="72" height="18" rx="7.5" fill="var(--orange)" stroke="var(--ink)" stroke-width="4" />
           </svg>
           <span class="count">{{ progress.litCount }}/7</span>
         </button>

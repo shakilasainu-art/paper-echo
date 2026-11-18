@@ -151,26 +151,26 @@ function drawCard(): HTMLCanvasElement {
   g.lineWidth = 3
   g.stroke()
 
-  // 皇冠
+  // 皇冠（与页面同一造型：三圆尖 + 橙色冠带）
   const crown = new Path2D(
-    'M10 64 V46 L24 24 Q28 17 32 24 L42 40 L46 14 Q50 7 54 14 L58 40 L68 24 Q72 17 76 24 L90 46 V64 Q50 70 10 64 Z',
+    'M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z',
+  )
+  const band = new Path2D(
+    'M22 50 H78 A8 8 0 0 1 86 58 V60 A8 8 0 0 1 78 68 H22 A8 8 0 0 1 14 60 V58 A8 8 0 0 1 22 50 Z',
   )
   g.save()
   g.translate(W / 2, 300)
   g.scale(3.1, 3.1)
-  g.translate(-50, -35)
+  g.translate(-50, -39)
   g.fillStyle = col.yellow
   g.fill(crown)
   g.strokeStyle = col.ink
   g.lineWidth = 4.2
   g.lineJoin = 'round'
   g.stroke(crown)
-  // 冠带描边（参考角色皇冠的橙色镶边）
-  const rim = new Path2D('M14 52 Q50 58 86 52')
-  g.strokeStyle = col.orange
-  g.lineWidth = 2.8
-  g.lineCap = 'round'
-  g.stroke(rim)
+  g.fillStyle = col.orange
+  g.fill(band)
+  g.stroke(band)
   g.restore()
 
   // 标题
@@ -303,20 +303,23 @@ onBeforeUnmount(() => window.clearTimeout(noteTimer))
     <section class="assemble">
       <span class="halo" aria-hidden="true"></span>
 
-      <svg class="crown" viewBox="0 0 100 70" role="img" aria-label="拼合完成的皇冠">
+      <svg class="crown" viewBox="0 0 100 78" role="img" aria-label="拼合完成的皇冠">
         <path
-          d="M10 64 V46 L24 24 Q28 17 32 24 L42 40 L46 14 Q50 7 54 14 L58 40 L68 24 Q72 17 76 24 L90 46 V64 Q50 70 10 64 Z"
+          d="M9 64 C6 53 5 43 9 34 C12 25 21 23 24 32 C26 39 28 43 32 45 Q35 47 38 44 C41 40 42 29 43 24 C44 13 46 7 51 7 C57 7 59 17 60 25 C61 34 62 42 65 44 Q68 46 71 42 C74 37 75 24 77 19 C79 12 87 12 89 21 C92 31 92 48 91 64 Z"
           fill="var(--yellow)"
           stroke="var(--ink)"
           stroke-width="4"
           stroke-linejoin="round"
         />
-        <path
-          d="M14 52 Q50 58 86 52"
-          fill="none"
-          stroke="var(--orange)"
-          stroke-width="3"
-          stroke-linecap="round"
+        <rect
+          x="14"
+          y="50"
+          width="72"
+          height="18"
+          rx="7.5"
+          fill="var(--orange)"
+          stroke="var(--ink)"
+          stroke-width="4"
         />
       </svg>
 
